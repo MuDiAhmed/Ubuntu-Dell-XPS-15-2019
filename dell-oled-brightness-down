@@ -1,0 +1,2 @@
+event=video/brightnessdown BRTDN 00000087 00000000
+action=/etc/acpi/dell-oled-brightness.sh down

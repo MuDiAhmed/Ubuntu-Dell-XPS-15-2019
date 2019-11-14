@@ -1,0 +1,2 @@
+event=video/brightnessup BRTUP 00000086 00000000
+action=/etc/acpi/dell-oled-brightness.sh up
