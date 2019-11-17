@@ -23,7 +23,7 @@ Problems addressed are:
 
 	**Note 1:** It is recommended to also install 3rd party software for which your laptop needs to be connected to the internet. Wifi will not be available, Just use your phone tethering for now. will fix this issue later.
 
-	**Note 2:** After installation, in case of you didn't disable secure boot, the first restart you will see a blue window for `MOK Management` just choice `enroll`
+	**Note 2:** After installation, in case of you didn't disable [secure boot](https://wiki.ubuntu.com/UEFI/SecureBoot), the first restart you will see a blue window for `MOK Management` just choice `enroll`
 
 6. After the installation is complete, run
 	```
