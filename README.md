@@ -1,9 +1,10 @@
+
 # Ubuntu-Dell-XPS-15-2019
 How to install Ubuntu on a Dell XPS 15 OLED 7590 model from 2019?
 
 This page will explain how to fix a number of issues with the **Ubuntu 18.04**.
   
-`Note (Not tested yet): the power management for the latest CPU generation works only on **Ubuntu 19.04** leading to very high power consumption and a CPU permanently at the thermal limit on older Ubuntu versions.`
+**Note (Not tested yet):** the power management for the latest CPU generation works only on **Ubuntu 19.04** leading to very high power consumption and a CPU permanently at the thermal limit on older Ubuntu versions.
   
 Problems addressed are:
 
@@ -16,22 +17,20 @@ Problems addressed are:
 
 1. Download `Ubuntu 18.04` from [Ubuntu Website](https://ubuntu.com/download/desktop/thank-you?country=AE&version=18.04.3&architecture=amd64)
 2. Create Bootable usb stick using `Rufus` on Windows or `Startup Disk Creator` on Ubuntu 
-3. Change `SATA Operation` inside `BIOS(UEFI)` from `RAID on` to `AHCI`, this is done by: `Power up` your machine then click `f12`, choice `BOIS Configurations`.  
+3. Change `SATA Mode` inside `BIOS(UEFI)` from `RAID on` to `AHCI`, this is done by: `Power up` your machine then click `f12`, choice `BOIS Configurations`.  
 4. Restart your machine then click `f12` again, then choice to boot from the usb stick.
 5. Follow Ubuntu installation window.
 
-##### Note 1:
-`It is recommended to also install 3rd party software for which your laptop needs to be connected to the internet. Wifi will not be available, Just use your phone tethering for now. will fix this issue later`  
+	**Note 1:** It is recommended to also install 3rd party software for which your laptop needs to be connected to the internet. Wifi will not be available, Just use your phone tethering for now. will fix this issue later.
 
-##### Note 2: 
-`After installation, in case of you didn't disable secure boot, the first restart you will see a blue window for` **MOK Management** `just choice` **enroll**
+	**Note 2:** After installation, in case of you didn't disable secure boot, the first restart you will see a blue window for `MOK Management` just choice `enroll`
 
 6. After the installation is complete, run
-```
-sudo apt update
-sudo apt dist-upgrade -y
-```
-to update the system to the latest versions.
+	```
+	sudo apt update
+	sudo apt dist-upgrade -y
+	```
+	to update the system to the latest versions.
 
 
 
@@ -126,65 +125,65 @@ The function keys can be used to change brightness. ([Idea Taking from Lenovo Th
     2. Create a file (brightness up listiner) called `dell-oled-brightness-up` inside `/etc/acpi/events/` via.  
      `sudo vi /etc/acpi/events/dell-oled-brightness-up`
     3. Add bellow content to it.  
-    ```
-    event=video/brightnessup BRTUP 00000086 00000000
-    action=/etc/acpi/dell-oled-brightness.sh up
-    ```   
-    4. Create a file (brightness down listiner) called `dell-oled-brightness-down` inside `/etc/acpi/events/` via.  
+		  ```
+	    event=video/brightnessup BRTUP 00000086 00000000
+	    action=/etc/acpi/dell-oled-brightness.sh up
+		```   
+    5. Create a file (brightness down listiner) called `dell-oled-brightness-down` inside `/etc/acpi/events/` via.  
      `sudo vi /etc/acpi/events/dell-oled-brightness-down`
-    5. Add bellow content to it.  
-    ```
-    event=video/brightnessdown BRTDN 00000087 00000000
-    action=/etc/acpi/dell-oled-brightness.sh down
-    ```
+    6. Add bellow content to it.  
+	    ```
+	    event=video/brightnessdown BRTDN 00000087 00000000
+	    action=/etc/acpi/dell-oled-brightness.sh down
+	    ```
 
 2. We are going to create an event handler.
     1. Open a terminal window
     2. Create a file called `dell-oled-brightness.sh` inside `/etc/acpi/` via.
       `sudo vi /etc/acpi/dell-oled-brightness.sh`
     3. Add bellow content to it.  
-    ```
-    #!/bin/bash
-    export XAUTHORITY=/run/user/1000/gdm/Xauthority
-    export DISPLAY=:0.0
-    DISPLAYNAME=`xrandr --listmonitors | awk '$1 == "0:" {print $4}'`
-    MIN=0.0625
-    MAX=1
-    #convert range from 0.0:1.0 to 0:16
-    INCREASE_DECREASE_VALUE=$MIN 
-    #get brightness bar level, range from 0 to 15
-    CURRENT_INTEL_BRIGHTNESS=`/usr/lib/gnome-settings-daemon/gsd-backlight-helper --get-    brightness`
-    CURR=`LC_ALL=C /usr/bin/printf "%.*f" 1 $CURRENT_INTEL_BRIGHTNESS`
+	    ```
+	    #!/bin/bash
+	    export XAUTHORITY=/run/user/1000/gdm/Xauthority
+	    export DISPLAY=:0.0
+	    DISPLAYNAME=`xrandr --listmonitors | awk '$1 == "0:" {print $4}'`
+	    MIN=0.0625
+	    MAX=1
+	    #convert range from 0.0:1.0 to 0:16
+	    INCREASE_DECREASE_VALUE=$MIN 
+	    #get brightness bar level, range from 0 to 15
+	    CURRENT_INTEL_BRIGHTNESS=`/usr/lib/gnome-settings-daemon/gsd-backlight-helper --get-    brightness`
+	    CURR=`LC_ALL=C /usr/bin/printf "%.*f" 1 $CURRENT_INTEL_BRIGHTNESS`
 
-    if [ "$1" == "up" ]; then
-         CURR=$CURR+1
-    else
-        CURR=$CURR-1
-    fi
- 
-    VAL=`echo "scale=3; ($CURR+1)*$INCREASE_DECREASE_VALUE" | bc`
- 
-    if (( `echo "$VAL < $MIN" | bc -l` )); then
-       VAL=$MIN
-    elif (( `echo "$VAL > $MAX" | bc -l` )); then
-       VAL=$MAX
-    fi
- 
-    #set oled brightness to the caluclated value
-    `xrandr --output $DISPLAYNAME --brightness $VAL` 2>&1 >/dev/null | logger -t oled-brightness
- 
-    # Set Intel backlight to fake value
-    # to sync OSD brightness indicator to actual brightness
-    INTEL_PANEL="/sys/devices/pci0000:00/0000:00:02.0/drm/card0/card0-eDP-1/intel_backlight/"
-    if [ -d "$INTEL_PANEL" ]; then
-       PERCENT=`echo "scale=4; $VAL/$MAX" | bc -l`
-       INTEL_MAX=$(cat "$INTEL_PANEL/max_brightness")
-       INTEL_BRIGHTNESS=`echo "scale=4; $PERCENT*$INTEL_MAX" | bc -l`
-       INTEL_BRIGHTNESS=`LC_ALL=C /usr/bin/printf "%.*f" 0 $INTEL_BRIGHTNESS`
-       echo $INTEL_BRIGHTNESS > "$INTEL_PANEL/brightness"
-    fi
+	    if [ "$1" == "up" ]; then
+	         CURR=$CURR+1
+	    else
+	        CURR=$CURR-1
+	    fi
+	 
+	    VAL=`echo "scale=3; ($CURR+1)*$INCREASE_DECREASE_VALUE" | bc`
+	 
+	    if (( `echo "$VAL < $MIN" | bc -l` )); then
+	       VAL=$MIN
+	    elif (( `echo "$VAL > $MAX" | bc -l` )); then
+	       VAL=$MAX
+	    fi
+	 
+	    #set oled brightness to the caluclated value
+	    `xrandr --output $DISPLAYNAME --brightness $VAL` 2>&1 >/dev/null | logger -t oled-brightness
+	 
+	    # Set Intel backlight to fake value
+	    # to sync OSD brightness indicator to actual brightness
+	    INTEL_PANEL="/sys/devices/pci0000:00/0000:00:02.0/drm/card0/card0-eDP-1/intel_backlight/"
+	    if [ -d "$INTEL_PANEL" ]; then
+	       PERCENT=`echo "scale=4; $VAL/$MAX" | bc -l`
+	       INTEL_MAX=$(cat "$INTEL_PANEL/max_brightness")
+	       INTEL_BRIGHTNESS=`echo "scale=4; $PERCENT*$INTEL_MAX" | bc -l`
+	       INTEL_BRIGHTNESS=`LC_ALL=C /usr/bin/printf "%.*f" 0 $INTEL_BRIGHTNESS`
+	       echo $INTEL_BRIGHTNESS > "$INTEL_PANEL/brightness"
+	    fi
 
-    ```
+	    ```
 
 
 #### Commands available: 
