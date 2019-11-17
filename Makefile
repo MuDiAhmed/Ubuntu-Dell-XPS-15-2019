@@ -1,15 +1,14 @@
-# Copyright 2017 - 2019, Udi Fuchs
-# SPDX-License-Identifier: MIT
-
 ACPI_DIR=/etc/acpi/
 ACPI_EVENTS_DIR=$(ACPI_DIR)events
 BRIGHTNESS_UP_FILE=./dell-oled-brightness-up
 BRIGHTNESS_DOWN_FILE=./dell-oled-brightness-down
 BRIGHTNESS_SCRIPT_FILE=./dell-oled-brightness.sh
+POWER_TOP_SERVICE_FILE=./powertop.service
+SYS_SERVICE_DIR=/etc/systemd/system/
 
-all: 	wifi_install oled_install suspend_install
+all: 	 power_management_install oled_install suspend_install wifi_install
 	
-uninstall: wifi_uninstall oled_uninstall suspend_uninstall 
+uninstall: power_management_uninstall oled_uninstall suspend_uninstall wifi_uninstall 
 	
 oled_install: 
 	install -m 644 $(BRIGHTNESS_UP_FILE) $(ACPI_EVENTS_DIR)
@@ -43,3 +42,15 @@ wifi_uninstall:
 	add-apt-repository -r ppa:canonical-hwe-team/backport-iwlwifi
 	apt-get update
 	reboot
+
+power_management_install:
+	apt install -y powertop thermald
+	cp $(POWER_TOP_SERVICE_FILE) $(SYS_SERVICE_DIR)$(POWER_TOP_SERVICE_FILE)
+	systemctl daemon-reload
+	systemctl enable powertop.service
+
+power_management_uninstall:
+	systemctl disable powertop.service
+	systemctl daemon-reload
+	rm -f $(SYS_SERVICE_DIR)$(POWER_TOP_SERVICE_FILE)
+	apt-get remove -y powertop thermald

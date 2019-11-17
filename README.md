@@ -1,4 +1,5 @@
 
+
 # Ubuntu-Dell-XPS-15-2019
 How to install Ubuntu on a Dell XPS 15 OLED 7590 model from 2019?
 
@@ -32,7 +33,24 @@ Problems addressed are:
 	```
 	to update the system to the latest versions.
 
+## Fixing all issues:
+**Note:** laptop will reboot at the end. so save your important work
+1. Open a terminal
+2. Run `cd /path/to/repo/dir/`
+3. Run `sudo make`
 
+#### Commands Available:
+- `sudo make` + one of the below
+	1. all (default). **Note:** laptop will reboot at the end. so save your important work
+	2. uninstall **Note:** laptop will reboot at the end. so save your important work
+	3. oled_install
+	4. oled_uninstall
+	5. wifi_install **Note:** laptop will reboot at the end. so save your important work
+	6. wifi_uninstall **Note:** laptop will reboot at the end. so save your important work
+	7. power_management_install
+	8. power_management_uninstall
+	9. suspend_install
+	10. suspend_uninstall   
 
 
 ## Killer Wifi driver
@@ -61,37 +79,49 @@ we are going to add the right repo, so we are able to install the wifi driver. t
 - `sudo make wifi_uninstall`
 
 
-
-
 ## CPU power management
 Without further configuration the CPU will run quite hot and will quickly drain the battery. Install `powertop` and `thermald` to fix this.
-```
-sudo apt install -y powertop thermald
-```
-You can start powertop with `sudo powertop`, navigate to the _Tunables_ section and switch all _Bad_ points to _Good_. Probably not all of them have a big effect, I have not tried, but the processor related points are absolutely required. However, these changes are not permanent and will be reset at reboot. Instead let us create a service that will change these settings at boot time.
 
+#### Automatic Fix:
+1. Open a terminal
+2. Run `cd /path/to/repo/dir/`
+3. Run `sudo make power_management_install`
+
+ 
+ #### Behind the scene:
+ 1. Open a terminal
+ 2. Run `sudo apt install -y powertop thermald`
+ 3. Run `sudo powertop` 
+ 4. Click `Shift+TAB` to navigate to Tunables
+ 5. Click `Enter` on the `Bad` to change to `Good`
+ 
+	Probably not all of them have a big effect, I have not tried, but the processor related points are absolutely required. However, these changes are not permanent and will be reset at reboot. Instead let us create a service that will change these settings at boot time.
 The script and setup are taken from [here](https://blog.sleeplessbeastie.eu/2015/08/10/how-to-set-all-tunable-powertop-options-at-system-boot/).
 
-First, create a service with
-```
-cat << EOF | sudo tee /etc/systemd/system/powertop.service
-[Unit]
-Description=PowerTOP auto tune
+6. Run below command to create a service file called `powertop.service` at `/etc/systemd/system/`
+	```
+	cat << EOF | sudo tee /etc/systemd/system/powertop.service
+	[Unit]
+	Description=PowerTOP auto tune
 
-[Service]
-Type=idle
-Environment="TERM=dumb"
-ExecStart=/usr/sbin/powertop --auto-tune
+	[Service]
+	Type=idle
+	Environment="TERM=dumb"
+	ExecStart=/usr/sbin/powertop --auto-tune
 
-[Install]
-WantedBy=multi-user.target
-EOF
-```
-and then enable this service to run at boot time with
-```
-sudo systemctl daemon-reload
-sudo systemctl enable powertop.service
-```
+	[Install]
+	WantedBy=multi-user.target
+	EOF
+	```
+7. Run below command to enable the service at boot time
+	```
+	sudo systemctl daemon-reload
+	sudo systemctl enable powertop.service
+	```
+
+#### Commands available: 
+- `sudo make power_management_install`
+- `sudo make power_management_uninstall`
 
 
 ## Screen Brightness (OLED)
@@ -122,27 +152,26 @@ The function keys can be used to change brightness. ([Idea Taking from Lenovo Th
 
 1. We are going to create 2 listeners for function keys brightness up and down.  
     1. Open a terminal window
-    2. Create a file (brightness up listiner) called `dell-oled-brightness-up` inside `/etc/acpi/events/` via.  
-     `sudo vi /etc/acpi/events/dell-oled-brightness-up`
-    3. Add bellow content to it.  
+    2. Run below command to create a file (brightness up listener) called `dell-oled-brightness-up` inside `/etc/acpi/events/` 
 		  ```
+	    cat << EOF | sudo tee /etc/acpi/events/dell-oled-brightness-up
 	    event=video/brightnessup BRTUP 00000086 00000000
 	    action=/etc/acpi/dell-oled-brightness.sh up
+	    EOF
 		```   
-    5. Create a file (brightness down listiner) called `dell-oled-brightness-down` inside `/etc/acpi/events/` via.  
-     `sudo vi /etc/acpi/events/dell-oled-brightness-down`
-    6. Add bellow content to it.  
+    3. Run below command to create a file  (brightness down listener) called `dell-oled-brightness-down` inside `/etc/acpi/events/`. 
 	    ```
+	    cat << EOF | sudo tee /etc/acpi/events/dell-oled-brightness-down
 	    event=video/brightnessdown BRTDN 00000087 00000000
 	    action=/etc/acpi/dell-oled-brightness.sh down
+	    EOF
 	    ```
 
 2. We are going to create an event handler.
     1. Open a terminal window
-    2. Create a file called `dell-oled-brightness.sh` inside `/etc/acpi/` via.
-      `sudo vi /etc/acpi/dell-oled-brightness.sh`
-    3. Add bellow content to it.  
+    2. Run below command to create a file called `dell-oled-brightness.sh` inside `/etc/acpi/`.
 	    ```
+	    cat << EOF | sudo tee /etc/acpi/dell-oled-brightness.sh
 	    #!/bin/bash
 	    export XAUTHORITY=/run/user/1000/gdm/Xauthority
 	    export DISPLAY=:0.0
@@ -182,8 +211,10 @@ The function keys can be used to change brightness. ([Idea Taking from Lenovo Th
 	       INTEL_BRIGHTNESS=`LC_ALL=C /usr/bin/printf "%.*f" 0 $INTEL_BRIGHTNESS`
 	       echo $INTEL_BRIGHTNESS > "$INTEL_PANEL/brightness"
 	    fi
-
+	    EOF
 	    ```
+	  3. Give the file `excute` permission via.
+	`sudo chmod u+x /etc/acpi/dell-oled-brightness.sh`
 
 
 #### Commands available: 
