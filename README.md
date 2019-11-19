@@ -1,6 +1,6 @@
 
 
-# Ubuntu-Dell-XPS-15-2019
+# Ubuntu on Dell XPS 15 7590 OLED 2019
 How to install Ubuntu on a Dell XPS 15 OLED 7590 model from 2019?
 
 This page will explain how to fix a number of issues with the **Ubuntu 18.04**.
