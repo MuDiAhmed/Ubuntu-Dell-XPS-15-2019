@@ -44,13 +44,15 @@ wifi_uninstall:
 	reboot
 
 power_management_install:
-	apt install -y powertop thermald
+	apt install -y powertop thermald tlp
 	cp $(POWER_TOP_SERVICE_FILE) $(SYS_SERVICE_DIR)$(POWER_TOP_SERVICE_FILE)
 	systemctl daemon-reload
 	systemctl enable powertop.service
+	tlp start
+	powertop --auto-tune
 
 power_management_uninstall:
 	systemctl disable powertop.service
 	systemctl daemon-reload
 	rm -f $(SYS_SERVICE_DIR)$(POWER_TOP_SERVICE_FILE)
-	apt-get remove -y powertop thermald
+	apt-get remove -y powertop thermald tlp

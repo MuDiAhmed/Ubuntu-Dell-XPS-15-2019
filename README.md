@@ -1,5 +1,6 @@
 
 
+
 # Ubuntu on Dell XPS 15 7590 OLED 2019
 How to install Ubuntu on a Dell XPS 15 OLED 7590 model from 2019?
 
@@ -80,7 +81,11 @@ we are going to add the right repo, so we are able to install the wifi driver. t
 
 
 ## CPU power management
-Without further configuration the CPU will run quite hot and will quickly drain the battery. Install `powertop` and `thermald` to fix this.
+Without further configuration the CPU will run quite hot and will quickly drain the battery. 
+We are going to Install:
+1.  [powertop](https://01.org/powertop/overview)
+2.  [thermald](https://01.org/linux-thermal-daemon)
+3. [TLP](https://linrunner.de/en/tlp/docs/tlp-linux-advanced-power-management.html#installation)
 
 #### Automatic Fix:
 1. Open a terminal
@@ -90,7 +95,7 @@ Without further configuration the CPU will run quite hot and will quickly drain 
  
  #### Behind the scene:
  1. Open a terminal
- 2. Run `sudo apt install -y powertop thermald`
+ 2. Run `sudo apt install -y powertop thermald tlp`
  3. Run `sudo powertop` 
  4. Click `Shift+TAB` to navigate to Tunables
  5. Click `Enter` on the `Bad` to change to `Good`
@@ -118,6 +123,7 @@ The script and setup are taken from [here](https://blog.sleeplessbeastie.eu/2015
 	sudo systemctl daemon-reload
 	sudo systemctl enable powertop.service
 	```
+8. Run `sudo tlp start`
 
 #### Commands available: 
 - `sudo make power_management_install`
