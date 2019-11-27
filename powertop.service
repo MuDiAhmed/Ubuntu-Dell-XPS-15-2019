@@ -5,6 +5,8 @@ Description=PowerTOP auto tune
 Type=idle
 Environment="TERM=dumb"
 ExecStart=/usr/sbin/powertop --auto-tune
+ExecStartPost=/bin/sleep 30
+ExecStartPost=/bin/sh -c "echo 'on' | tee /sys/bus/pci/devices/$(lspci -D | grep VGA | sed 's/ VGA.*//g')/power/control"
 
 [Install]
 WantedBy=multi-user.target
