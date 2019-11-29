@@ -1,6 +1,3 @@
-
-
-
 # Ubuntu on Dell XPS 15 7590 OLED 2019
 How to install Ubuntu on a Dell XPS 15 OLED 7590 model from 2019?
 
@@ -44,14 +41,16 @@ Problems addressed are:
 - `sudo make` + one of the below
 	1. all (default). **Note:** laptop will reboot at the end. so save your important work
 	2. uninstall **Note:** laptop will reboot at the end. so save your important work
-	3. oled_install
-	4. oled_uninstall
-	5. wifi_install **Note:** laptop will reboot at the end. so save your important work
-	6. wifi_uninstall **Note:** laptop will reboot at the end. so save your important work
-	7. power_management_install
-	8. power_management_uninstall
-	9. suspend_install
-	10. suspend_uninstall   
+	3. oled_xrandr_install
+	4. oled_xrandr_uninstall
+	5. oled_icc_install **Note:** require manual reboot or login again
+	6. oled_icc_uninstall
+	7. wifi_install **Note:** laptop will reboot at the end. so save your important work
+	8. wifi_uninstall **Note:** laptop will reboot at the end. so save your important work
+	9. power_management_install
+	10. power_management_uninstall
+	11. suspend_install
+	12. suspend_uninstall   
 
 
 ## Killer Wifi driver
@@ -136,11 +135,12 @@ This is undesirable. Not only will the screen often be too bright, it will also 
 
 **Note:** That OLED displays only consume energy and age when the individual pixels are emitting light. Hence, it is advisable to choose dark background colors and install a dark scheme in your browser.
 
+### 1. FIX USING XRANDR:
 
 #### Automatic Fix:
 1. Open a terminal
 2. Run `cd /path/to/repo/dir/`
-3. Run `sudo make oled_install` 
+3. Run `sudo make oled_xrandr_install` 
 
 
 #### One time fix
@@ -179,44 +179,28 @@ The function keys can be used to change brightness. ([Idea Taking from Lenovo Th
 	    ```
 	    cat << EOF | sudo tee /etc/acpi/dell-oled-brightness.sh
 	    #!/bin/bash
-	    export XAUTHORITY=/run/user/1000/gdm/Xauthority
-	    export DISPLAY=:0.0
-	    DISPLAYNAME=`xrandr --listmonitors | awk '$1 == "0:" {print $4}'`
-	    MIN=0.0625
-	    MAX=1
-	    #convert range from 0.0:1.0 to 0:16
-	    INCREASE_DECREASE_VALUE=$MIN 
-	    #get brightness bar level, range from 0 to 15
-	    CURRENT_INTEL_BRIGHTNESS=`/usr/lib/gnome-settings-daemon/gsd-backlight-helper --get-    brightness`
-	    CURR=`LC_ALL=C /usr/bin/printf "%.*f" 1 $CURRENT_INTEL_BRIGHTNESS`
+		DISPLAYNAME=`xrandr --listmonitors | awk '$1 == "0:" {print $4}'`
+		MIN=0
+		MAX=1
+		CURRENT_OLED_BRIGHTNESS=`xrandr --verbose | grep -m 1 -i brightness | cut -f2 -d ' '`
+		CURRENT_INTEL_BRIGHTNESS=`cat /sys/class/backlight/intel_backlight/actual_brightness`
+		MAX_INTEL_BRIGHTNESS=`cat /sys/class/backlight/intel_backlight/max_brightness`
+		CURR_INTEL=`LC_ALL=C /usr/bin/printf "%.*f" 1 $CURRENT_INTEL_BRIGHTNESS`
+		MAX_INTEL=`LC_ALL=C /usr/bin/printf "%.*f" 1 $MAX_INTEL_BRIGHTNESS`
 
-	    if [ "$1" == "up" ]; then
-	         CURR=$CURR+1
-	    else
-	        CURR=$CURR-1
-	    fi
-	 
-	    VAL=`echo "scale=3; ($CURR+1)*$INCREASE_DECREASE_VALUE" | bc`
-	 
-	    if (( `echo "$VAL < $MIN" | bc -l` )); then
-	       VAL=$MIN
-	    elif (( `echo "$VAL > $MAX" | bc -l` )); then
-	       VAL=$MAX
-	    fi
-	 
-	    #set oled brightness to the caluclated value
-	    `xrandr --output $DISPLAYNAME --brightness $VAL` 2>&1 >/dev/null | logger -t oled-brightness
-	 
-	    # Set Intel backlight to fake value
-	    # to sync OSD brightness indicator to actual brightness
-	    INTEL_PANEL="/sys/devices/pci0000:00/0000:00:02.0/drm/card0/card0-eDP-1/intel_backlight/"
-	    if [ -d "$INTEL_PANEL" ]; then
-	       PERCENT=`echo "scale=4; $VAL/$MAX" | bc -l`
-	       INTEL_MAX=$(cat "$INTEL_PANEL/max_brightness")
-	       INTEL_BRIGHTNESS=`echo "scale=4; $PERCENT*$INTEL_MAX" | bc -l`
-	       INTEL_BRIGHTNESS=`LC_ALL=C /usr/bin/printf "%.*f" 0 $INTEL_BRIGHTNESS`
-	       echo $INTEL_BRIGHTNESS > "$INTEL_PANEL/brightness"
-	    fi
+		VAL=`echo "scale=2; $CURR_INTEL/$MAX_INTEL" | bc`
+
+		if (( `echo "$VAL < $MIN" | bc -l` )); then
+		    VAL=$MIN
+		elif (( `echo "$VAL > $MAX" | bc -l` )); then
+		    VAL=$MAX
+		fi
+
+
+		#set oled brightness to the caluclated value
+		`xrandr --output $DISPLAYNAME --brightness $VAL` 2>&1 >/dev/null | logger -t oled-brightness
+		logger -t OLED_XRANDR_BRIGHTNESS "CURRENT BRIGHTNESS: $VAL"
+
 	    EOF
 	    ```
 	  3. Give the file `excute` permission via.
@@ -224,10 +208,22 @@ The function keys can be used to change brightness. ([Idea Taking from Lenovo Th
 
 
 #### Commands available: 
-- `sudo make oled_install`
-- `sudo make oled_uninstall`
+- `sudo make oled_xrandr_install`
+- `sudo make oled_xrandr_uninstall`
 
 
+### 2. FIX USING ICC color profiles:
+script is taking from a different [project](https://github.com/udifuchs/icc-brightness) just merged his code to this project to make it easy to use either ways
+
+#### Automatic Fix:
+1. Open a terminal
+2. Run `cd /path/to/repo/dir/`
+3. Run `sudo make oled_icc_install`
+4. Reboot your machine or Login again  
+
+#### Commands available: 
+- `sudo make oled_icc_install`
+- `sudo make oled_icc_uninstall`
 
 ## Suspend Draining battery fast
 By default, the very inefficient `s2idle` suspend variant is incorrectly selected. This is probably due to the BIOS. The much more efficient `deep` variant should be selected instead.
@@ -254,5 +250,6 @@ echo deep| tee /sys/power/mem_sleep
 #### Commands available: 
 - `sudo make suspend_install`
 - `sudo make suspend_uninstall`
+
 
 
