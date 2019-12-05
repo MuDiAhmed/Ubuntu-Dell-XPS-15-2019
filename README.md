@@ -250,7 +250,11 @@ echo deep| tee /sys/power/mem_sleep
 
 #### Commands available: 
 - `sudo make suspend_install`
-- `sudo make suspend_uninstall`
+- `sudo make suspend_uninstall`  
 
 
+
+## Useful Packages:
+1. [system-monitor](https://extensions.gnome.org/extension/120/system-monitor/) (gnome extention)
+2. [CPU Power Manager](https://extensions.gnome.org/extension/945/cpu-power-manager/) (gnome extention)
 
