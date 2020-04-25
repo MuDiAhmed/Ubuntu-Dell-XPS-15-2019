@@ -1,9 +1,9 @@
 # Ubuntu on Dell XPS 15 7590 OLED 2019
 How to install Ubuntu on a Dell XPS 15 OLED 7590 model from 2019?
 
-This page will explain how to fix a number of issues with **Ubuntu 18.04** and **Ubuntu 19.10**.
+This page will explain how to fix a number of issues with **Ubuntu 18.04**, **Ubuntu 19.10** and **Ubuntu 20.04**.
   
-**Note:** the power management for the latest CPU generation works better on **Ubuntu 19.10**, leading to very high power consumption and a CPU permanently at the thermal limit on older Ubuntu versions, but can be controlled with **CPU Power Management** solution below.
+**Note:** the power management for the latest CPU generation works better on **Ubuntu 19.10** and **Ubuntu 20.04**, which means very high power consumption and a CPU permanently at the thermal limit on older Ubuntu versions, but can be controlled with **CPU Power Management** solution below.
   
 Problems addressed are:
 
@@ -14,7 +14,7 @@ Problems addressed are:
 
 ## Installing Ubuntu (assuming only Ubuntu not dual boot)
 
-1. Download [Ubuntu 18.04](https://ubuntu.com/download/desktop/thank-you?country=AE&version=18.04.3&architecture=amd64) or [Ubuntu 19.10](https://ubuntu.com/download/desktop/thank-you?country=AE&version=19.10&architecture=amd64).
+1. Download [Ubuntu 18.04](https://ubuntu.com/download/desktop/thank-you?country=AE&version=18.04.3&architecture=amd64), [Ubuntu 19.10](https://ubuntu.com/download/desktop/thank-you?country=AE&version=19.10&architecture=amd64) or [Ubuntu 20.04](https://ubuntu.com/download/desktop/thank-you?version=20.04&architecture=amd64).
 2. Create Bootable usb stick using `Rufus` on Windows or `Startup Disk Creator` on Ubuntu 
 3. Change `SATA Mode` inside `BIOS(UEFI)` from `RAID on` to `AHCI`, this is done by: `Power up` your machine then click `f12`, choice `BOIS Configurations`.  
 4. Restart your machine then click `f12` again, then choice to boot from the usb stick.
