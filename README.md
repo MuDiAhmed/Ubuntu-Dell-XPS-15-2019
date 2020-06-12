@@ -1,4 +1,7 @@
 # Ubuntu on Dell XPS 15 7590 OLED 2019
+
+**Note:** I Recommend [System76 PopOS 20.04](https://pop.system76.com/) which is based on `Ubuntu 20.04`, you will find my other [repo](https://github.com/MuDiAhmed/Popos-Dell-XPS-15-2019) that describe the experience and fix any issues.   
+
 How to install Ubuntu on a Dell XPS 15 OLED 7590 model from 2019?
 
 This page will explain how to fix a number of issues with **Ubuntu 18.04**, **Ubuntu 19.10** and **Ubuntu 20.04**.
